@@ -28,6 +28,10 @@ public:
     {
         return false;
     };
+    virtual void print()
+    {
+        cout << "Base class print" << endl;
+    }
 };
 // Derived Interger Attribute class
 class integerAttribute : public Attr
@@ -59,6 +63,10 @@ public:
     bool operator>=(const Attr &right)
     {
         return value >= ((integerAttribute &)right).value;
+    }
+    void print()
+    {
+        cout << value << " ";
     }
 };
 // Derived String Attribute class
@@ -92,6 +100,10 @@ public:
     {
         return value >= ((stringAttribute &)right).value;
     }
+    void print()
+    {
+        cout << value << " ";
+    }
 };
 // Derived Float Attribute class
 class floatAttribute : public Attr
@@ -123,6 +135,10 @@ public:
     bool operator>=(const Attr &right)
     {
         return value >= ((floatAttribute &)right).value;
+    }
+    void print()
+    {
+        cout << value << " ";
     }
 };
 // Derived Double Attribute class
@@ -156,12 +172,74 @@ public:
     {
         return value >= ((doubleAttribute &)right).value;
     }
+    void print()
+    {
+        cout << value << " ";
+    }
 };
 class Record
 { // storing data for each record
     vector<Attr *> attrptr;
     // methods
+public:
+    Record(int natttr = 0)
+    {
+        cout<<"Creating a record!"<<endl<<"Enter 0 for integer attribute, 1 for string attribute, 2 for float attribute, 3 for double attribute"<<endl;
+        for (int i = 0; i < natttr; i++)
+        {
+            cout << "Enter the attribute type: ";
+            int temp;
+            cin >> temp;
+            if (temp == 0)
+            {
+                cout << "Enter the value: ";
+                int temp1;
+                cin >> temp1;
+                attrptr.push_back(new integerAttribute(temp1));
+            }
+            else if (temp == 1)
+            {
+                cout << "Enter the value: ";
+                string temp1;
+                cin >> temp1;
+                attrptr.push_back(new stringAttribute(temp1));
+            }
+            else if (temp == 2)
+            {
+                cout << "Enter the value: ";
+                float temp1;
+                cin >> temp1;
+                attrptr.push_back(new floatAttribute(temp1));
+            }
+            else if (temp == 3)
+            {
+                cout << "Enter the value: ";
+                double temp1;
+                cin >> temp1;
+                attrptr.push_back(new doubleAttribute(temp1));
+            }
+            else
+            {
+                cout << "Invalid input!" << endl;
+                i--;
+            }
 
+        }
+    }
+    void print_record()
+    {
+        for (int i = 0; i < attrptr.size(); i++)
+        {
+            attrptr[i]->print();
+        }
+    }
+    ~Record()
+    {
+        for (int i = 0; i < attrptr.size(); i++)
+        {
+            delete attrptr[i];
+        }
+    }
 };
 class Relation
 {                             // storing a relation
@@ -187,7 +265,26 @@ public:
         for (int i = 0; i < nrecs; i++)
         {
             cout << "Enter record " << i << ": ";
-            
+            recs.push_back(new Record(this->natttr));
+        }
+    }
+    void relation_print()
+    {
+        for (int i = 0; i < natttr; i++)
+        {
+            cout << attrnames[i] << " ";
+        }
+        cout << endl;
+        for (auto it = recs.begin(); it != recs.end(); it++)
+        {
+            (*it)->print_record();
+        }
+    }
+    ~Relation()
+    {
+        for(auto it = recs.begin(); it != recs.end(); it++)
+        {
+            delete *it;
         }
     }
 };
@@ -195,12 +292,20 @@ public:
 int main()
 {
     stringAttribute s1("dskjf"), s2("skfsdbf");
-    cout << (s1 == s2) << endl;
-    cout << (s1 != s2) << endl;
-    cout << (s1 < s2) << endl;
-    cout << (s1 <= s2) << endl;
-    cout << (s1 > s2) << endl;
-    cout << (s1 >= s2) << endl;
+    Attr &a1 = s1;
+    Attr &a2 = s2;
+    // cout << (a1 == a2) << endl;
+    // cout << (s1 != s2) << endl;
+    // cout << (s1 < s2) << endl;
+    // cout << (s1 <= s2) << endl;
+    // cout << (s1 > s2) << endl;
+    // cout << (s1 >= s2) << endl;
+    int natttr, nrecs;
+    cout << "Enter the number of attributes and records:";
+    cin>>natttr>>nrecs;
+    Relation r1(natttr, nrecs);
+    r1.relation_print();
+    
 
     return 0;
 }
