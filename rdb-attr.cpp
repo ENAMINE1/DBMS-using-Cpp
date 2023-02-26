@@ -182,36 +182,38 @@ class Record
     vector<Attr *> attrptr;
     // methods
 public:
-    Record(int natttr = 0)
+    Record(vector<int> &a_type, vector<string> &attrribute_names, int natttr = 0)
     {
-        cout<<"Creating a record!"<<endl<<"Enter 0 for integer attribute, 1 for string attribute, 2 for float attribute, 3 for double attribute"<<endl;
+        // cout << "Creating a record!" << endl;
         for (int i = 0; i < natttr; i++)
         {
-            cout << "Enter the attribute type: ";
-            int temp;
-            cin >> temp;
-            if (temp == 0)
+            cout << attrribute_names[i] << " ";
+        }
+
+        for (int i = 0; i < natttr; i++)
+        {
+            if (a_type[i] == 0)
             {
-                cout << "Enter the value: ";
+                cout << "Enter the " << attrribute_names[i] << " value: ";
                 int temp1;
                 cin >> temp1;
                 attrptr.push_back(new integerAttribute(temp1));
             }
-            else if (temp == 1)
+            else if (a_type[i] == 1)
             {
                 cout << "Enter the value: ";
                 string temp1;
                 cin >> temp1;
                 attrptr.push_back(new stringAttribute(temp1));
             }
-            else if (temp == 2)
+            else if (a_type[i] == 2)
             {
                 cout << "Enter the value: ";
                 float temp1;
                 cin >> temp1;
                 attrptr.push_back(new floatAttribute(temp1));
             }
-            else if (temp == 3)
+            else if (a_type[i] == 3)
             {
                 cout << "Enter the value: ";
                 double temp1;
@@ -223,7 +225,6 @@ public:
                 cout << "Invalid input!" << endl;
                 i--;
             }
-
         }
     }
     void print_record()
@@ -232,6 +233,7 @@ public:
         {
             attrptr[i]->print();
         }
+        cout << endl;
     }
     ~Record()
     {
@@ -249,23 +251,57 @@ class Relation
     list<Record *> recs;      // list of records
     // methods
 public:
-    Relation(int natttr = 0, int nrecs = 0) : natttr(natttr), nrecs(nrecs)
+    vector<int> attribute_type;
+    // Relation(int natttr = 0, int nrecs = 0) : natttr(natttr), nrecs(nrecs)
+    Relation() : natttr(0), nrecs(0)
     {
+        cout << "Creating a relation!" << endl;
+        cout << "Enter the number of attributes and records: ";
+        cin >> natttr >> nrecs;
+
+        cout << "Enter" << endl
+             << "1 for Integer attribute." << endl
+             << "2 for String attribute." << endl
+             << "3 for Float attribute." << endl
+             << "4 for Double attribute" << endl;
         for (int i = 0; i < natttr; i++)
         {
-            cout << "Enter the attribute name: ";
+            cout << "Enter the ATTRIBUTE NAME and ATTRIBUTE TYPE and MAPPING SCHEMA to indices {1 - " << natttr << "}!! " << endl;
             string temp;
             cin >> temp;
-            attrnames.push_back(temp);
-            cout << "Enter the maping schema for the indices: ";
+            int type;
+        type_again:
+            cin >> type;
+            if (type > 4 || type < 1)
+            {
+                cout << "Invalid Attribute type! Enter again: ";
+                goto type_again;
+            }
             int temp1;
+        temp1_again:
             cin >> temp1;
-            attrinds.push_back(temp1);
+            if (temp1 > natttr || temp1 < 1)
+            {
+                cout << "Invalid Mapping schema! Enter again: ";
+                goto temp1_again;
+            }
+            attribute_type.push_back(type);
+            attrnames.push_back(temp);
+            attrinds.push_back(temp1 - 1);
         }
+        vector<string> temp_str = attrnames;
+        vector<int> temp_int = attribute_type;
+        for (int i = 0; i < natttr; i++)
+        {
+            attrnames[attrinds[i]] = temp_str[i];
+            attribute_type[attrinds[i]] = temp_int[i];
+        }
+
         for (int i = 0; i < nrecs; i++)
         {
-            cout << "Enter record " << i << ": ";
-            recs.push_back(new Record(this->natttr));
+            cout << endl
+                 << "Enter record " << i + 1 << " details!! " << endl;
+            recs.push_back(new Record(attribute_type, attrnames, this->natttr));
         }
     }
     void relation_print()
@@ -282,7 +318,7 @@ public:
     }
     ~Relation()
     {
-        for(auto it = recs.begin(); it != recs.end(); it++)
+        for (auto it = recs.begin(); it != recs.end(); it++)
         {
             delete *it;
         }
@@ -300,12 +336,11 @@ int main()
     // cout << (s1 <= s2) << endl;
     // cout << (s1 > s2) << endl;
     // cout << (s1 >= s2) << endl;
-    int natttr, nrecs;
-    cout << "Enter the number of attributes and records:";
-    cin>>natttr>>nrecs;
-    Relation r1(natttr, nrecs);
+    // int natttr, nrecs;
+    // cout << "Enter the number of attributes and records:";
+    // cin >> natttr >> nrecs;
+    Relation r1;
     r1.relation_print();
-    
 
     return 0;
 }
