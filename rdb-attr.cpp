@@ -255,51 +255,29 @@ class Relation
 public:
     vector<int> attribute_type;
     // Relation(int natttr = 0, int nrecs = 0) : natttr(natttr), nrecs(nrecs)
-    Relation() : natttr(0), nrecs(0)
+    Relation(int natttr, vector<string> _attrnames, vector<int> _attrinds, vector<int> a_type) : natttr(natttr), nrecs(0)
     {
-        cout << "Creating a relation!" << endl;
-        cout << "Enter the number of attributes : ";
-        cin >> natttr;
-
-        cout << "Enter" << endl
-             << "1 for String attribute." << endl
-             << "2 for Integer attribute." << endl
-             << "3 for Float attribute." << endl
-             << "4 for Double attribute" << endl;
-        for (int i = 0; i < natttr; i++)
-        {
-            cout << "Enter the ATTRIBUTE NAME and ATTRIBUTE TYPE and MAPPING SCHEMA to indices {1 - " << natttr << "}!! " << endl;
-            string temp;
-            cin >> temp;
-            int type;
-        type_again:
-            cin >> type;
-            if (type > 4 || type < 1)
-            {
-                cout << "Invalid Attribute type! Enter again: ";
-                goto type_again;
-            }
-            int temp1;
-        temp1_again:
-            cin >> temp1;
-            if (temp1 > natttr || temp1 < 1)
-            {
-                cout << "Invalid Mapping schema! Enter again: ";
-                goto temp1_again;
-            }
-            attribute_type.push_back(type);
-            attrnames.push_back(temp);
-            attrinds.push_back(temp1 - 1);
-        }
         // Reorganising the schema
-        vector<string> temp_str = attrnames;
-        vector<int> temp_int = attribute_type;
+        this->attrinds = _attrinds;
+        this->attribute_type = a_type;
+        this->attrnames = _attrnames;
+        vector<string> temp_str = _attrnames;
+        vector<int> temp_int = a_type;
+
         for (int i = 0; i < natttr; i++)
         {
-            attrnames[attrinds[i]] = temp_str[i];
-            attribute_type[attrinds[i]] = temp_int[i];
+            attrnames[_attrinds[i]] = temp_str[i];
+            attribute_type[_attrinds[i]] = temp_int[i];
         }
     }
+    Relation(Relation& r): natttr(r.natttr), nrecs(r.nrecs), attrnames(r.attrnames), attrinds(r.attrinds), attribute_type(r.attribute_type)
+    {
+        for (auto it = r.recs.begin(); it != r.recs.end(); it++)
+        {
+            this->recs.push_back(new Record(attribute_type, attrnames, natttr));
+        }
+    }
+    
     void relation_print()
     {
         if (natttr == 0)
