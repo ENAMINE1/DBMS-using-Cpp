@@ -185,37 +185,39 @@ public:
     Record(vector<int> &a_type, vector<string> &attrribute_names, int natttr = 0)
     {
         // cout << "Creating a record!" << endl;
-        for (int i = 0; i < natttr; i++)
-        {
-            cout << attrribute_names[i] << " ";
-        }
+        // for (int i = 0; i < natttr; i++)
+        // {
+        //     cout << attrribute_names[i] << " ";
+        // }
 
         for (int i = 0; i < natttr; i++)
         {
-            if (a_type[i] == 0)
+            // integer
+            if (a_type[i] == 2)
             {
                 cout << "Enter the " << attrribute_names[i] << " value: ";
                 int temp1;
                 cin >> temp1;
                 attrptr.push_back(new integerAttribute(temp1));
             }
+            // string
             else if (a_type[i] == 1)
             {
-                cout << "Enter the value: ";
+                cout << "Enter the " << attrribute_names[i] << " value: ";
                 string temp1;
                 cin >> temp1;
                 attrptr.push_back(new stringAttribute(temp1));
             }
-            else if (a_type[i] == 2)
+            else if (a_type[i] == 3)
             {
-                cout << "Enter the value: ";
+                cout << "Enter the " << attrribute_names[i] << " value: ";
                 float temp1;
                 cin >> temp1;
                 attrptr.push_back(new floatAttribute(temp1));
             }
-            else if (a_type[i] == 3)
+            else if (a_type[i] == 4)
             {
-                cout << "Enter the value: ";
+                cout << "Enter the " << attrribute_names[i] << " value: ";
                 double temp1;
                 cin >> temp1;
                 attrptr.push_back(new doubleAttribute(temp1));
@@ -256,12 +258,12 @@ public:
     Relation() : natttr(0), nrecs(0)
     {
         cout << "Creating a relation!" << endl;
-        cout << "Enter the number of attributes and records: ";
-        cin >> natttr >> nrecs;
+        cout << "Enter the number of attributes : ";
+        cin >> natttr;
 
         cout << "Enter" << endl
-             << "1 for Integer attribute." << endl
-             << "2 for String attribute." << endl
+             << "1 for String attribute." << endl
+             << "2 for Integer attribute." << endl
              << "3 for Float attribute." << endl
              << "4 for Double attribute" << endl;
         for (int i = 0; i < natttr; i++)
@@ -289,6 +291,7 @@ public:
             attrnames.push_back(temp);
             attrinds.push_back(temp1 - 1);
         }
+        // Reorganising the schema
         vector<string> temp_str = attrnames;
         vector<int> temp_int = attribute_type;
         for (int i = 0; i < natttr; i++)
@@ -296,16 +299,14 @@ public:
             attrnames[attrinds[i]] = temp_str[i];
             attribute_type[attrinds[i]] = temp_int[i];
         }
-
-        for (int i = 0; i < nrecs; i++)
-        {
-            cout << endl
-                 << "Enter record " << i + 1 << " details!! " << endl;
-            recs.push_back(new Record(attribute_type, attrnames, this->natttr));
-        }
     }
     void relation_print()
     {
+        if (natttr == 0)
+        {
+            cout << "Relation is empty!" << endl;
+            return;
+        }
         for (int i = 0; i < natttr; i++)
         {
             cout << attrnames[i] << " ";
@@ -316,6 +317,16 @@ public:
             (*it)->print_record();
         }
     }
+    void AddRecord()
+    {
+        // Incrementing the # of records
+        nrecs++;
+        recs.push_back(new Record(attribute_type, attrnames, natttr));
+    }
+
+    // friend Relation* _union(Relation* R1, Relation *R2);
+    friend class Basics;
+
     ~Relation()
     {
         for (auto it = recs.begin(); it != recs.end(); it++)
@@ -324,23 +335,3 @@ public:
         }
     }
 };
-
-int main()
-{
-    stringAttribute s1("dskjf"), s2("skfsdbf");
-    Attr &a1 = s1;
-    Attr &a2 = s2;
-    // cout << (a1 == a2) << endl;
-    // cout << (s1 != s2) << endl;
-    // cout << (s1 < s2) << endl;
-    // cout << (s1 <= s2) << endl;
-    // cout << (s1 > s2) << endl;
-    // cout << (s1 >= s2) << endl;
-    // int natttr, nrecs;
-    // cout << "Enter the number of attributes and records:";
-    // cin >> natttr >> nrecs;
-    Relation r1;
-    r1.relation_print();
-
-    return 0;
-}
