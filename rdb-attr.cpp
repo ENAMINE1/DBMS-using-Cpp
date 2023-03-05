@@ -32,14 +32,19 @@ public:
     {
         cout << "Base class print" << endl;
     }
+    virtual Attr* get_value() = 0;
+    virtual Attr *copy_attr() = 0;
+    friend class Record;
+    friend class Basics;
 };
 // Derived Interger Attribute class
 class integerAttribute : public Attr
 {
+    int type;
     int value;
 
 public:
-    integerAttribute(int value) : value(value) {}
+    integerAttribute(int value) : value(value), type(2) {}
     bool operator==(const Attr &right)
     {
         return value == ((integerAttribute &)right).value;
@@ -68,14 +73,23 @@ public:
     {
         cout << value << " ";
     }
+    Attr* get_value()
+    {
+        return this;
+    }
+    Attr* copy_attr()
+    {
+        return new integerAttribute(*this); //
+    }
 };
 // Derived String Attribute class
 class stringAttribute : public Attr
 {
+    int type;
     string value;
 
 public:
-    stringAttribute(string value) : value(value) {}
+    stringAttribute(string value) : value(value), type(1) {}
     bool operator==(const Attr &right)
     {
         return value == ((stringAttribute &)right).value;
@@ -104,14 +118,23 @@ public:
     {
         cout << value << " ";
     }
+    Attr* get_value()
+    {
+        return this;
+    }
+    Attr* copy_attr()
+    {
+        return new stringAttribute(*this); //
+    }
 };
 // Derived Float Attribute class
 class floatAttribute : public Attr
 {
+    int type;
     float value;
 
 public:
-    floatAttribute(float value) : value(value) {}
+    floatAttribute(float value) : value(value), type(3) {}
     bool operator==(const Attr &right)
     {
         return value == ((floatAttribute &)right).value;
@@ -140,14 +163,23 @@ public:
     {
         cout << value << " ";
     }
+    Attr* get_value()
+    {
+        return this;
+    }
+    Attr* copy_attr()
+    {
+        return new floatAttribute(*this); //
+    }
 };
 // Derived Double Attribute class
 class doubleAttribute : public Attr
 {
+    int type;
     double value;
 
 public:
-    doubleAttribute(double value) : value(value) {}
+    doubleAttribute(double value) : value(value), type(4) {}
     bool operator==(const Attr &right)
     {
         return value == ((doubleAttribute &)right).value;
@@ -176,6 +208,14 @@ public:
     {
         cout << value << " ";
     }
+    Attr* get_value()
+    {
+        return this;
+    }
+    Attr* copy_attr()
+    {
+        return new doubleAttribute(*this); //
+    }
 };
 class Record
 { // storing data for each record
@@ -184,12 +224,6 @@ class Record
 public:
     Record(vector<int> &a_type, vector<string> &attrribute_names, int natttr = 0)
     {
-        // cout << "Creating a record!" << endl;
-        // for (int i = 0; i < natttr; i++)
-        // {
-        //     cout << attrribute_names[i] << " ";
-        // }
-
         for (int i = 0; i < natttr; i++)
         {
             // integer
@@ -227,6 +261,18 @@ public:
                 cout << "Invalid input!" << endl;
                 i--;
             }
+
+        }
+    }
+    // copy constructor
+    Record(const Record &r)
+    {
+
+        // deep copy
+        for (int i = 0; i < r.attrptr.size(); i++)
+        {
+            Attr *temp = r.attrptr[i]->copy_attr();
+            attrptr.push_back(temp);
         }
     }
     void print_record()
@@ -237,6 +283,9 @@ public:
         }
         cout << endl;
     }
+
+    friend class Basics;
+    friend class Attr;
     ~Record()
     {
         for (int i = 0; i < attrptr.size(); i++)
@@ -254,7 +303,12 @@ class Relation
     // methods
 public:
     vector<int> attribute_type;
+    vector<pair<string, int>> attr_pair_type;
     // Relation(int natttr = 0, int nrecs = 0) : natttr(natttr), nrecs(nrecs)
+    // creating an empty relation
+    Relation() : natttr(0), nrecs(0)
+    {
+    }
     Relation(int natttr, vector<string> _attrnames, vector<int> _attrinds, vector<int> a_type) : natttr(natttr), nrecs(0)
     {
         // Reorganising the schema
@@ -263,24 +317,35 @@ public:
         this->attrnames = _attrnames;
         vector<string> temp_str = _attrnames;
         vector<int> temp_int = a_type;
+        vector<int> temp_idx = _attrinds;
 
         for (int i = 0; i < natttr; i++)
         {
             attrnames[_attrinds[i]] = temp_str[i];
             attribute_type[_attrinds[i]] = temp_int[i];
+            attrinds[_attrinds[i]] = temp_idx[i];
         }
     }
-    Relation(Relation& r): natttr(r.natttr), nrecs(r.nrecs), attrnames(r.attrnames), attrinds(r.attrinds), attribute_type(r.attribute_type)
+    // Copy Constructor
+    Relation(Relation &r) : natttr(r.natttr), nrecs(r.nrecs), attrnames(r.attrnames), attrinds(r.attrinds), attribute_type(r.attribute_type)
     {
         for (auto it = r.recs.begin(); it != r.recs.end(); it++)
         {
-            this->recs.push_back(new Record(attribute_type, attrnames, natttr));
+            this->recs.push_back(new Record(**it));
         }
     }
-    
+    // creatinf a set of attributes and data types
+
+    void create_attr_pair_type()
+    {
+        for (int i = 0; i < natttr; i++)
+        {
+            attr_pair_type.push_back(make_pair(attrnames[i], attribute_type[i]));
+        }
+    }
     void relation_print()
     {
-        if (natttr == 0)
+        if (recs.empty() == true)
         {
             cout << "Relation is empty!" << endl;
             return;
@@ -307,9 +372,18 @@ public:
 
     ~Relation()
     {
+        cout << "Relation Deleted" << endl;
         for (auto it = recs.begin(); it != recs.end(); it++)
         {
             delete *it;
         }
     }
 };
+// int main()
+// {
+//     Basics b;
+//     Relation r1(2, {"Name", "Age"}, {1, 0}, {1, 2});
+//     Relation r2(2, {"Age", "Name"}, {0, 1}, {2, 1});
+//     Relation r3 =
+//     return 0;
+// }
