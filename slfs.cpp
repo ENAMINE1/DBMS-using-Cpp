@@ -166,6 +166,19 @@ public:
     Relation *_cartesianproduct(Relation *R1, Relation *R2)
     {
         // you need to create a new table with attributes of both the Relations and the record contains the values of records of both the tables
+        // checking for cartition product only when attributes names are different
+        for (int i = 0; i < R1->natttr; i++)
+        {
+            for(int j = 0; j < R2->natttr; j++)
+            {
+                if(R1->attrnames[i] == R2->attrnames[j])
+                {
+                    cout<<"Attributes names are same. Cannot perform cartesian product."<<endl;
+                    return NULL;
+                }
+            }
+        }
+
         vector<string> temp_names = R1->attrnames;
         vector<int> temp_idx = R1->attrinds;
         vector<int> temp_type = R1->attribute_type;
@@ -193,7 +206,7 @@ public:
         return R3;
     }
     // 4. Projection: New relation with a subset of columns
-    Relation *projection(Relation *R1, list<string> projectattrs)
+    Relation *_projection(Relation *R1, list<string> projectattrs)
     {
         // you need to make a new reltion with attribute only present in the list provided in the paramater
         //  you can create a new map of list attr_names and their index there after for creating a new record just add the elements
@@ -227,7 +240,7 @@ public:
         return R2;
     }
     // 5. Selection: New relation with a subset of records matching a boolean expression in the attribute values in disjunctive normal form.
-    Relation *_union(Relation *R1, DNFformula *f)
+    Relation *_selection(Relation *R1, DNFformula *f)
     {
         // you are given a comparator that has string - Attribute name, char - boolean operator and Attr* pointer to a constant Attribute
         // you need to create a new table of the records that satisfy this comparator
@@ -269,7 +282,7 @@ public:
                             if (*element < *value)
                             {
                                 // cout << "smaller \t " << endl;
-                                    count++;
+                                count++;
                             }
                         }
                         if (_operator == '>')
@@ -302,7 +315,6 @@ public:
                 R2->nrecs++;
                 R2->recs.push_back(new Record(*it));
             }
-
         }
         return R2;
     }

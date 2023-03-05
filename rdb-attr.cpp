@@ -362,6 +362,14 @@ public:
             (*it)->print_record();
         }
     }
+    void getAttributes()
+    {
+        for (int i = 0; i < natttr; i++)
+        {
+            cout << attrnames[i] << " ";
+        }
+        cout << endl;
+    }
     void AddRecord()
     {
         // Incrementing the # of records
