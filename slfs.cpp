@@ -1,5 +1,9 @@
 #include "rdb-attr.cpp"
 #include <algorithm>
+struct DNFformula
+{
+    list<list<tuple<string, char, Attr *>>> ops;
+} DNF;
 class Basics
 {
 public:
@@ -219,6 +223,86 @@ public:
                 temp_rec->attrptr.push_back((*_rec).attrptr[name_map_idx[str]]->copy_attr());
             }
             R2->recs.push_back(temp_rec);
+        }
+        return R2;
+    }
+    // 5. Selection: New relation with a subset of records matching a boolean expression in the attribute values in disjunctive normal form.
+    Relation *_union(Relation *R1, DNFformula *f)
+    {
+        // you are given a comparator that has string - Attribute name, char - boolean operator and Attr* pointer to a constant Attribute
+        // you need to create a new table of the records that satisfy this comparator
+        //  a record will only satisfy one of the three boolean operation
+        //  basically the dnf form is a list of list of comparators and a record should staisfy one or more of these list of a comparator and should satisfy all of these comparators
+        Relation *R2 = new Relation(R1->natttr, R1->attrnames, R1->attrinds, R1->attribute_type);
+        map<string, int> name_map_idx, name_map_type;
+        for (int i = 0; i < R1->natttr; i++)
+        {
+            name_map_idx[R1->attrnames[i]] = R1->attrinds[i];
+            name_map_type[R1->attrnames[i]] = R1->attribute_type[i];
+        }
+        for (auto it : R1->recs)
+        {
+            // variable to check whether to add or not a record in new Relation
+            int flag = 0;
+            for (list<tuple<string, char, Attr *>> dis_comparator : f->ops)
+            {
+                int count = 0;
+                for (tuple<string, char, Attr *> con_comparator : dis_comparator)
+                {
+                    // name_map_idx[get<0>(con_comparator)]; gives you the index of the attribute in the string
+                    auto idx = name_map_idx.find(get<0>(con_comparator));
+                    // checking if the attribute is present in the record or not
+                    if (idx != name_map_idx.end())
+                    {
+                        // if present then check for the boolean operator and the value of the attribute
+                        int i = name_map_idx[get<0>(con_comparator)];
+                        // get<1>(con_comparator) gives you the boolean operator
+                        char _operator = get<1>(con_comparator);
+                        // get<2>(con_comparator) gives you the pointer to the constant attribute
+                        Attr *value = get<2>(con_comparator);
+                        // it->attrptr[i] gives you the pointer to the attribute in the record
+                        Attr *element = it->attrptr[i];
+                        // element->print();
+                        // value->print();
+                        if (_operator == '<')
+                        {
+                            if (*element < *value)
+                            {
+                                // cout << "smaller \t " << endl;
+                                    count++;
+                            }
+                        }
+                        if (_operator == '>')
+                        {
+                            if (*element > *value)
+                            {
+                                // cout << "greator \t " << endl;
+                                count++;
+                            }
+                        }
+                        if (_operator == '=')
+                        {
+                            if ((*element == *value))
+                            {
+                                // cout << "equal\t " << endl;
+                                count++;
+                            }
+                        }
+                    }
+                }
+                if (count == dis_comparator.size())
+                {
+                    // indication to include this record in new Relation
+                    flag = 1;
+                    break;
+                }
+            }
+            if (flag == 1)
+            {
+                R2->nrecs++;
+                R2->recs.push_back(new Record(*it));
+            }
+
         }
         return R2;
     }
