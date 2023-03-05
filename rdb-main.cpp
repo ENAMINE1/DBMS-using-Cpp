@@ -95,5 +95,7 @@ int main()
     Relation *r3 = b._difference(r1, r2);
     r4->relation_print();
     r3->relation_print();
+    Relation *r5 = b._cartesianproduct(r1, r2);
+    r5->relation_print();
     return 0;
 }

@@ -158,6 +158,38 @@ public:
         }
         return R;
     }
+    // 3. Cartesian Product: All possible pairs of records from R1 and R2
+    Relation *_cartesianproduct(Relation *R1, Relation *R2)
+    {
+        // you need to create a new table with attributes of both the Relations and the record contains the values of records of both the tables
+        vector<string> temp_names = R1->attrnames;
+        vector<int> temp_idx = R1->attrinds;
+        vector<int> temp_type = R1->attribute_type;
+        for (int i = 0; i < R2->natttr; i++)
+        {
+            temp_names.push_back(R2->attrnames[i]);
+            temp_idx.push_back(R2->attrinds[i]+R1->natttr);
+            temp_type.push_back(R2->attribute_type[i]);
+        }
+        Relation *R3 = new Relation(R1->natttr + R2->natttr, temp_names, temp_idx, temp_type);
+        for (auto it = R1->recs.begin(); it != R1->recs.end(); it++)
+        {
+
+            for (auto iit = R2->recs.begin(); iit != R2->recs.end(); iit++)
+            {
+                Record *temp_R1 = new Record(**it);
+                Record *temp_R2 = new Record(**iit);
+                for (int i = 0; i < R2->natttr; i++)
+                {
+                    temp_R1->attrptr.push_back(temp_R2->attrptr[i]);
+                }
+                R3->recs.push_back(temp_R1);
+            }
+        }
+        return R3;
+    }
+    // 4. Projection: New relation with a subset of columns
+    
     // 6. Rename: rename an attribute in schema
     Relation *_rename(Relation *R, const string &s1, const string &s2)
     {
@@ -177,26 +209,3 @@ public:
         return R;
     }
 };
-
-/*
-
-    R1 attrnames
-    map<key = attrname : index k>
-
-    vector<string> s1;
-    map<string, int> index;
-
-    for(i 0 ; i < s1.length(); ++i)
-    {
-        index[s1[i]] = i;
-    }
-
-    R2 attrnames
-    map<key vale>
-
-    vector<pair<int, int>> index;
-
-    list R2
-    vector<attr*>
-
-*/
