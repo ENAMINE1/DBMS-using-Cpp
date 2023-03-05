@@ -3,7 +3,7 @@
 class Basics
 {
 public:
-    // Helper function to check whether the Realtion have same attributes or not
+    // Helper function to check whether the Relation have same attributes or not
     bool _is_valid(Relation *R1, Relation *R2)
     {
         // Check if the schemas are same
@@ -168,7 +168,7 @@ public:
         for (int i = 0; i < R2->natttr; i++)
         {
             temp_names.push_back(R2->attrnames[i]);
-            temp_idx.push_back(R2->attrinds[i]+R1->natttr);
+            temp_idx.push_back(R2->attrinds[i] + R1->natttr);
             temp_type.push_back(R2->attribute_type[i]);
         }
         Relation *R3 = new Relation(R1->natttr + R2->natttr, temp_names, temp_idx, temp_type);
@@ -189,7 +189,39 @@ public:
         return R3;
     }
     // 4. Projection: New relation with a subset of columns
-    
+    Relation *projection(Relation *R1, list<string> projectattrs)
+    {
+        // you need to make a new reltion with attribute only present in the list provided in the paramater
+        //  you can create a new map of list attr_names and their index there after for creating a new record just add the elements
+        map<string, int> name_map_idx, name_map_type;
+        for (int i = 0; i < R1->natttr; i++)
+        {
+            name_map_idx[R1->attrnames[i]] = R1->attrinds[i];
+            name_map_type[R1->attrnames[i]] = R1->attribute_type[i];
+        }
+        vector<int> temp_type, temp_idx;
+        vector<string> temp_attributes;
+        int i = 0;
+        for (auto str : projectattrs)
+        {
+            temp_attributes.push_back(str);
+            temp_type.push_back(name_map_type[str]);
+            temp_idx.push_back(i++);
+        }
+        // increase the number of records in the Relation each time you add the record
+        Relation *R2 = new Relation(projectattrs.size(), temp_attributes, temp_idx, temp_type);
+        for (auto _rec : R1->recs)
+        {
+            R2->nrecs++;
+            Record *temp_rec = new Record;
+            for (auto str : temp_attributes)
+            {
+                temp_rec->attrptr.push_back((*_rec).attrptr[name_map_idx[str]]->copy_attr());
+            }
+            R2->recs.push_back(temp_rec);
+        }
+        return R2;
+    }
     // 6. Rename: rename an attribute in schema
     Relation *_rename(Relation *R, const string &s1, const string &s2)
     {

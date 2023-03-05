@@ -91,11 +91,15 @@ int main()
 //     }
     // b._rename(r1, "age", "Roll");
     // r1->relation_print();
-    Relation * r4 = b._union(r1, r2);
-    Relation *r3 = b._difference(r1, r2);
-    r4->relation_print();
+    // Relation * r4 = b._union(r1, r2);
+    // Relation *r3 = b._difference(r1, r2);
+    // r4->relation_print();
+    // r3->relation_print();
+    // Relation *r5 = b._cartesianproduct(r1, r2);
+    // r5->relation_print();
+    list<string> a = {"name"};
+    Relation *r3 = b.projection(r1, a);
     r3->relation_print();
-    Relation *r5 = b._cartesianproduct(r1, r2);
-    r5->relation_print();
+
     return 0;
 }

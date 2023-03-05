@@ -275,6 +275,8 @@ public:
             attrptr.push_back(temp);
         }
     }
+    Record()
+    {}
     void print_record()
     {
         for (int i = 0; i < attrptr.size(); i++)
