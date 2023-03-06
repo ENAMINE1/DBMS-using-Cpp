@@ -1,4 +1,7 @@
 #include <bits/stdc++.h>
+#include "fort.hpp"
+#include "fort.c"
+#include "rdb.h"
 using namespace std;
 class Attr
 { // Base class for attributes
@@ -24,15 +27,12 @@ public:
     {
         return false;
     };
-    virtual bool operator>=(const Attr &right)
-    {
-        return false;
-    };
+    virtual bool operator>=(const Attr &right) = 0;
     virtual void print()
     {
         cout << "Base class print" << endl;
     }
-    virtual Attr* get_value() = 0;
+    // Attr *get_value();
     virtual Attr *copy_attr() = 0;
     friend class Record;
     friend class Basics;
@@ -73,11 +73,11 @@ public:
     {
         cout << value << " ";
     }
-    Attr* get_value()
+    int get_value()
     {
-        return this;
+        return value;
     }
-    Attr* copy_attr()
+    Attr *copy_attr()
     {
         return new integerAttribute(*this); //
     }
@@ -118,11 +118,11 @@ public:
     {
         cout << value << " ";
     }
-    Attr* get_value()
+    string get_value()
     {
-        return this;
+        return value;
     }
-    Attr* copy_attr()
+    Attr *copy_attr()
     {
         return new stringAttribute(*this); //
     }
@@ -163,11 +163,11 @@ public:
     {
         cout << value << " ";
     }
-    Attr* get_value()
+    float get_value()
     {
-        return this;
+        return this->value;
     }
-    Attr* copy_attr()
+    Attr *copy_attr()
     {
         return new floatAttribute(*this); //
     }
@@ -208,11 +208,11 @@ public:
     {
         cout << value << " ";
     }
-    Attr* get_value()
+    double get_value()
     {
-        return this;
+        return value;
     }
-    Attr* copy_attr()
+    Attr *copy_attr()
     {
         return new doubleAttribute(*this); //
     }
@@ -261,7 +261,6 @@ public:
                 cout << "Invalid input!" << endl;
                 i--;
             }
-
         }
     }
     // copy constructor
@@ -276,7 +275,8 @@ public:
         }
     }
     Record()
-    {}
+    {
+    }
     void print_record()
     {
         for (int i = 0; i < attrptr.size(); i++)
@@ -288,6 +288,8 @@ public:
 
     friend class Basics;
     friend class Attr;
+    friend class Relation;
+    friend Relation *naturaljoin(Relation *, Relation *, list<string>) ;
     ~Record()
     {
         for (int i = 0; i < attrptr.size(); i++)
@@ -306,6 +308,7 @@ class Relation
 public:
     vector<int> attribute_type;
     vector<pair<string, int>> attr_pair_type;
+    map<string, int> name_map_type;
     // Relation(int natttr = 0, int nrecs = 0) : natttr(natttr), nrecs(nrecs)
     // creating an empty relation
     Relation() : natttr(0), nrecs(0)
@@ -327,6 +330,10 @@ public:
             attribute_type[_attrinds[i]] = temp_int[i];
             attrinds[_attrinds[i]] = temp_idx[i];
         }
+        for (int i = 0; i < this->natttr; i++)
+        {
+            name_map_type[this->attrnames[i]] = this->attribute_type[i];
+        }
     }
     // Copy Constructor
     Relation(Relation &r) : natttr(r.natttr), nrecs(r.nrecs), attrnames(r.attrnames), attrinds(r.attrinds), attribute_type(r.attribute_type)
@@ -334,6 +341,10 @@ public:
         for (auto it = r.recs.begin(); it != r.recs.end(); it++)
         {
             this->recs.push_back(new Record(**it));
+        }
+        for (int i = 0; i < this->natttr; i++)
+        {
+            name_map_type[this->attrnames[i]] = this->attribute_type[i];
         }
     }
     // creatinf a set of attributes and data types
@@ -352,15 +363,56 @@ public:
             cout << "Relation is empty!" << endl;
             return;
         }
+        fort::utf8_table table;
+        table.set_border_style(FT_NICE_STYLE);
+        table.column(0).set_cell_text_align(fort::text_align::center);
+        table.column(2).set_cell_text_align(fort::text_align::center);
+
+        table << fort::header;
         for (int i = 0; i < natttr; i++)
         {
-            cout << attrnames[i] << " ";
+            table << attrnames[i];
         }
-        cout << endl;
+        table << fort::endr;
         for (auto it = recs.begin(); it != recs.end(); it++)
         {
-            (*it)->print_record();
+            for (int i = 0; i < natttr; i++)
+            {
+                if (attribute_type[i] == 2)
+                {
+                    table << ((integerAttribute *)((*it)->attrptr[i]))->get_value();
+                    continue;
+                }
+                if (attribute_type[i] == 1)
+                {
+                    table << ((stringAttribute *)((*it)->attrptr[i]))->get_value();
+                    continue;
+                }
+                if (attribute_type[i] == 3)
+                {
+                    table << ((floatAttribute *)((*it)->attrptr[i]))->get_value();
+                    continue;
+                }
+                if (attribute_type[i] == 4)
+                {
+                    table << ((doubleAttribute *)((*it)->attrptr[i]))->get_value();
+                    continue;
+                }
+            }
+            table << fort::endr;
         }
+        table << fort::endr;
+        std::cout << table.to_string() << std::endl;
+
+        // for (int i = 0; i < natttr; i++)
+        // {
+        //     cout << attrnames[i] << " ";
+        // }
+        // cout << endl;
+        // for (auto it = recs.begin(); it != recs.end(); it++)
+        // {
+        //     (*it)->print_record();
+        // }
     }
     void getAttributes()
     {
@@ -379,7 +431,7 @@ public:
 
     // friend Relation* _union(Relation* R1, Relation *R2);
     friend class Basics;
-
+    friend Relation *naturaljoin(Relation *, Relation *, list<string>) ;
     ~Relation()
     {
         cout << "Relation Deleted" << endl;
@@ -391,9 +443,11 @@ public:
 };
 // int main()
 // {
-//     Basics b;
+//     // Basics b;
 //     Relation r1(2, {"Name", "Age"}, {1, 0}, {1, 2});
 //     Relation r2(2, {"Age", "Name"}, {0, 1}, {2, 1});
-//     Relation r3 =
+//     r1.AddRecord();
+//     r1.AddRecord();
+//     r1.relation_print();
 //     return 0;
 // }

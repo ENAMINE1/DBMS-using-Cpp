@@ -1,49 +1,20 @@
-// Relation *r1 = Create_Relation();
-    // Relation *r2 = Create_Relation();
-    Relation *r1 = new Relation(2, {"name", "age"}, {1, 0}, {1, 2});
-    r1->AddRecord();
-    r1->AddRecord();
-    r1->AddRecord();
+/* C++ API */
+#include <iostream>
+#include"fort.hpp"
+#include "fort.c"
+int main(void)
+{
+  int a = 1;
+    fort::utf8_table table;
+    table.set_border_style(FT_NICE_STYLE);
+    table.column(0).set_cell_text_align(fort::text_align::center);
+    table.column(1).set_cell_text_align(fort::text_align::center);
 
-    Relation *r2 = new Relation(2, {"name", "age"}, {0, 1}, {1, 2});
-    r2->AddRecord();
-    r2->AddRecord();
-    r2->AddRecord();
-
-    Basics b;
-
-    // r1.relation_print();
-    // Relation r2;
-    r1->relation_print();
-    // r2->relation_print();
-
-    //    Relation* r3 = b._union(r1, r2);
-    //     r1->relation_print();
-    //     r2->relation_print();
-
-    //     if (r3 != NULL)
-    //     {
-    //         r3->relation_print();
-    //     }
-    //     else
-    //     {
-    //         cout << "UNION is not possible!"<< endl;
-    //     }
-    // b._rename(r1, "age", "Roll");
-    // r1->relation_print();
-    // Relation * r4 = b._union(r1, r2);
-    // Relation *r3 = b._difference(r1, r2);
-    // r4->relation_print();
-    // r3->relation_print();
-    Relation *r5 = b._cartesianproduct(r1, r2);
-    // r5->relation_print();
-    DNFformula f;
-    list<tuple<string, char, Attr *>> l3;
-    l3.push_back(make_tuple("name", '=', new stringAttribute("Tanishq")));
-    l3.push_back(make_tuple("age", '>', new integerAttribute(18)));
-    f.ops.push_back(l3);
-    // list<string> a = {"name", "age"};
-    // Relation *r3 = b.projection(r1, a);
-    // r3->relation_print();
-    Relation *r4 = b._union(r1, &f);
-    r4->relation_print();
+    table << fort::header
+          << "Ранг" << "Название" << "Год" << "Рейтинг" << fort::endr
+          << a << "Побег из Шоушенка" << "1994" << "9.5"<< fort::endr
+          << "2" << "12 разгневанных мужчин" << "1957" << "8.8" << fort::endr
+          << "3" << "Космическая одиссея 2001 года" << "1968" << "8.5" << fort::endr
+          << "4" << "Бегущий по лезвию" << "1982" << "8.1" << fort::endr;
+    std::cout << table.to_string() << std::endl;
+}
