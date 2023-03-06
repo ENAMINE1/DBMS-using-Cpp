@@ -53,6 +53,8 @@ int main()
     • Create a table from existing tables using the above developed operations.*/
     // using list of relations becuse it will be easier to delete a relation
     list<pair<Relation *, string>> Database;
+    Basics B;
+
 home:
     cout << "Welcome to the Database Management System!" << endl;
     cout << "1 :: Create a Relation." << endl;
@@ -173,14 +175,14 @@ home:
         }
         case 5:
         {
-            Basics B;
             cout << "1 :: Take UNION of two Relations." << endl;
             cout << "2 :: Take DIFFERENCE of two Relations." << endl;
             cout << "3 :: Take CARTESIAN PRODUCT of two Relations." << endl;
             cout << "4 :: Take PROJECTION of a Relation." << endl;
             cout << "5 :: Take SELECTION of a Relation." << endl;
             cout << "6 :: Rename a column in a Relation." << endl;
-            cout << "7 :: Retutn to Home." << endl;
+            cout << "7 :: Take JOIN of two Relations." << endl;
+            cout << "8 :: Retutn to Home." << endl;
             int temp;
             cin >> temp;
             switch (temp)
@@ -488,8 +490,56 @@ home:
                 }
                 goto home;
             }
-            // 7 :: Return to main menu.
+            // 7 :: Take JOIN of two Relations.
             case 7:
+            {
+                if (Database.size() >= 2)
+                {
+                    cout << "The Database contains the following Relations:" << endl;
+                    int i = 1;
+                    for (auto it = Database.begin(); it != Database.end(); it++)
+                    {
+                        cout << (i++) << " :: " << it->second << endl;
+                    }
+                    cout << "Choose the first Relation you want to take JOIN of: ";
+                    int num1;
+                    cin >> num1;
+                    auto it1 = Database.begin();
+                    for (int i = 1; i < num1; i++)
+                    {
+                        it1++;
+                    }
+                    cout << "Choose the second Relation you want to take JOIN of: ";
+                    int num2;
+                    cin >> num2;
+                    auto it2 = Database.begin();
+                    for (int i = 1; i < num2; i++)
+                    {
+                        it2++;
+                    }
+                    list<string> common_atteibutes;
+                    for (auto it = (*it1).first->name_map_type.begin(); it != (*it1).first->name_map_type.end(); it++)
+                    {
+                        if ((*it2).first->name_map_type.find(it->first) != (*it2).first->name_map_type.end())
+                        {
+                            common_atteibutes.push_back(it->first);
+                        }
+                    }
+                    cout << "Enter the name of the new Relation: ";
+                    string name;
+                    cin >> name;
+                    Relation *r = B.naturaljoin((*it1).first, (*it2).first, common_atteibutes);
+                    Database.push_back(make_pair(r, name));
+                    cout << "Relation created successfully!" << endl;
+                }
+                else
+                {
+                    cout << "The Database contains less than 2 Relations!" << endl;
+                }
+                goto home;
+            }
+                // 8 :: Exiting the program
+            case 8:
             {
                 goto home;
             }
@@ -512,7 +562,7 @@ home:
             }
             goto home;
         }
-        // 7 :: Exiting the program
+        // 7 :: Taking JOIN of two Relations.
         case 7:
         {
             cout << "Thank you for using the Database Management System!" << endl;

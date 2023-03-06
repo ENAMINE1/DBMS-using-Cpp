@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 #include "fort.hpp"
 #include "fort.c"
-#include "rdb.h"
+// #include "rdb.h"
 using namespace std;
 class Attr
 { // Base class for attributes
@@ -285,11 +285,10 @@ public:
         }
         cout << endl;
     }
-
+    // friend Relation *naturaljoin(Relation *, Relation *, list<string>);
     friend class Basics;
     friend class Attr;
     friend class Relation;
-    friend Relation *naturaljoin(Relation *, Relation *, list<string>) ;
     ~Record()
     {
         for (int i = 0; i < attrptr.size(); i++)
@@ -363,19 +362,26 @@ public:
             cout << "Relation is empty!" << endl;
             return;
         }
+        // FT_NICE_STYLE
+        // FT_SOLID_ROUND_STYLE
+        // FT_FRAME_STYLE
         fort::utf8_table table;
-        table.set_border_style(FT_NICE_STYLE);
+        table.set_border_style(FT_FRAME_STYLE);
         table.column(0).set_cell_text_align(fort::text_align::center);
         table.column(2).set_cell_text_align(fort::text_align::center);
 
         table << fort::header;
+        table << "S.No";
         for (int i = 0; i < natttr; i++)
         {
             table << attrnames[i];
         }
         table << fort::endr;
-        for (auto it = recs.begin(); it != recs.end(); it++)
+        auto i = recs.begin();
+        int j = 1;
+        for (auto it = recs.begin(); it != recs.end(); it++, j++)
         {
+            table << j;
             for (int i = 0; i < natttr; i++)
             {
                 if (attribute_type[i] == 2)
@@ -431,7 +437,7 @@ public:
 
     // friend Relation* _union(Relation* R1, Relation *R2);
     friend class Basics;
-    friend Relation *naturaljoin(Relation *, Relation *, list<string>) ;
+    friend Relation *naturaljoin(Relation *, Relation *, list<string>);
     ~Relation()
     {
         cout << "Relation Deleted" << endl;
@@ -447,7 +453,5 @@ public:
 //     Relation r1(2, {"Name", "Age"}, {1, 0}, {1, 2});
 //     Relation r2(2, {"Age", "Name"}, {0, 1}, {2, 1});
 //     r1.AddRecord();
-//     r1.AddRecord();
-//     r1.relation_print();
 //     return 0;
 // }
